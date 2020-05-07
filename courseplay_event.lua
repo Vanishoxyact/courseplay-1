@@ -23,6 +23,9 @@ function CourseplayEvent:new(vehicle, func, value, page)
 	if self.type == "table" then
 		if self.func == "setVehicleWaypoints" then
 			self.type = "waypointList"
+		else
+			--Default to object, other tables would require specific serialization logic
+			self.type = "object"
 		end
 	end
 
@@ -57,7 +60,9 @@ function CourseplayEvent:readStream(streamId, connection) -- wird aufgerufen wen
 		for w = 1, wp_count do
 			table.insert(self.value, CoursePlayNetworkHelper:readWaypoint(streamId))
 		end
-	else 
+	elseif self.type == "object" then
+		self.value = NetworkUtil.readNodeObject(streamId);
+	else
 		self.value = streamReadFloat32(streamId);
 	end
 	courseplay:debug("	readStream",5)
@@ -94,6 +99,8 @@ function CourseplayEvent:writeStream(streamId, connection)  -- Wird aufgrufen we
 		for w = 1, #(self.value) do
 			CoursePlayNetworkHelper:writeWaypoint(streamId, self.value[w])
 		end
+	elseif self.type == "object" then
+		NetworkUtil.writeNodeObject(streamId, self.value);
 	else
 		streamWriteFloat32(streamId, self.value);
 	end

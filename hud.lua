@@ -1904,7 +1904,7 @@ end
 
 function courseplay.hud:setupCombinesListPageButtons(vehicle,page)
 	for i=3, self.numLines do
-		self:addRowButton(vehicle,'toggleAssignCombineToTractor', page, i, 1)
+		self:addRowButton(vehicle,'toggleAssignCombineToTractor', page, i, 1):setOnlyCallLocal();
 	end;
 	local combinesListMouseWheelArea = {
 		x = self.contentMinX,
@@ -1912,7 +1912,7 @@ function courseplay.hud:setupCombinesListPageButtons(vehicle,page)
 		width = self.buttonCoursesPosX[4] - self.contentMinX,
 		height = self.linesPosY[3] + self.lineHeight - self.linesPosY[self.numLines]
 	};
-	vehicle.cp.hud.combinesListMouseArea= courseplay.button:new(vehicle, 'global', nil, 'shiftCombinesList', -1, combinesListMouseWheelArea.x, combinesListMouseWheelArea.y, combinesListMouseWheelArea.width, combinesListMouseWheelArea.height, nil, -self.numLines, true, true);
+	vehicle.cp.hud.combinesListMouseArea= courseplay.button:new(vehicle, 'global', nil, 'shiftCombinesList', -1, combinesListMouseWheelArea.x, combinesListMouseWheelArea.y, combinesListMouseWheelArea.width, combinesListMouseWheelArea.height, nil, -self.numLines, true, true):setOnlyCallLocal();;
 	print("vehicle.cp.hud.combinesListMouseArea: "..tostring(vehicle.cp.hud.combinesListMouseArea))
 end
 
@@ -2454,7 +2454,7 @@ function courseplay.hud:setCombineUnloadAIDriverContent(vehicle)
 	self:setupCombinesListPageButtons(vehicle, 4)
 	--self:addRowButton(vehicle,'toggleSearchCombineMode', 4, 1, 1 )
 	--self:addSettingsRowWithArrows(vehicle,'selectAssignedCombine', 4, 2, 1 )
-	self:addSettingsRowWithArrows(vehicle,'setSearchCombineOnField', 4, 2, 1 )
+	self:addSettingsRowWithArrows(vehicle,'setSearchCombineOnField', 4, 2, 1, true)
 	self:addRowButton(vehicle,'showCombineName', 4, 1, 1 )
 	--self:addRowButton(vehicle,'removeActiveCombineFromTractor', 4, 5, 1 )
 	
@@ -2548,11 +2548,16 @@ function courseplay.hud:addSettingsRow(vehicle,funct, hudPage, line, column )
 	vehicle.cp.hud.content.pages[hudPage][line][column].functionToCall = funct
 end
 
-function courseplay.hud:addSettingsRowWithArrows(vehicle,funct, hudPage, line, column )
+function courseplay.hud:addSettingsRowWithArrows(vehicle, funct, hudPage, line, column, onlyCallLocal)
 	self:debug(vehicle,"  addSettingsRowWithArrows: "..tostring(funct))
-	courseplay.button:new(vehicle, hudPage, { 'iconSprite.png', 'navLeft' }, funct,   -1, self.buttonPosX[2], self.linesButtonPosY[line], self.buttonSize.small.w, self.buttonSize.small.h, line, -5, false);
-	courseplay.button:new(vehicle, hudPage, { 'iconSprite.png', 'navRight' },  funct,    1, self.buttonPosX[1], self.linesButtonPosY[line], self.buttonSize.small.w, self.buttonSize.small.h, line,  5, false);
-	courseplay.button:new(vehicle, hudPage, nil, funct, 1, self.contentMinX, self.linesButtonPosY[line], self.contentMaxWidth, self.lineHeight, line, 5, true, true);
+	local leftButton = courseplay.button:new(vehicle, hudPage, { 'iconSprite.png', 'navLeft' }, funct,   -1, self.buttonPosX[2], self.linesButtonPosY[line], self.buttonSize.small.w, self.buttonSize.small.h, line, -5, false);
+	local rightButton = courseplay.button:new(vehicle, hudPage, { 'iconSprite.png', 'navRight' },  funct,    1, self.buttonPosX[1], self.linesButtonPosY[line], self.buttonSize.small.w, self.buttonSize.small.h, line,  5, false);
+	local mouseWheelArea = courseplay.button:new(vehicle, hudPage, nil, funct, 1, self.contentMinX, self.linesButtonPosY[line], self.contentMaxWidth, self.lineHeight, line, 5, true, true);
+	if onlyCallLocal then
+		leftButton:setOnlyCallLocal();
+		rightButton:setOnlyCallLocal();
+		mouseWheelArea:setOnlyCallLocal();
+	end
 	vehicle.cp.hud.content.pages[hudPage][line][column].functionToCall = funct
 end
 		

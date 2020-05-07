@@ -1822,19 +1822,29 @@ function courseplay:toggleAssignCombineToTractor(vehicle,line)
 	local listIndex = line-2 + vehicle.cp.combinesListHUDOffset
 	local combine = vehicle.cp.possibleCombines[listIndex]
 	if vehicle.cp.assignedCombines[combine] then
-		vehicle.cp.assignedCombines[combine] = nil
-		combine.cp.assignedUnloaders[vehicle]= nil
+		courseplay:unassignCombineToTractor(vehicle, combine);
+		CourseplayEvent.sendEvent(vehicle, "unassignCombineToTractor", combine, false);
 	else
-		vehicle.cp.assignedCombines[combine] = true
-		if combine.cp.assignedUnloaders == nil then
-			combine.cp.assignedUnloaders ={}
-		end
-		combine.cp.assignedUnloaders[vehicle] = true
+		courseplay:assignCombineToTractor(vehicle, combine);
+		CourseplayEvent.sendEvent(vehicle, "assignCombineToTractor", combine, false);
 	end
 end
 
 function courseplay:shiftCombinesList(vehicle, change_by)
 	vehicle.cp.combinesListHUDOffset = MathUtil.clamp(vehicle.cp.combinesListHUDOffset+ change_by,0,#vehicle.cp.possibleCombines-6)
+end
+
+function courseplay:assignCombineToTractor(vehicle, combine)
+	vehicle.cp.assignedCombines[combine] = true
+	if combine.cp.assignedUnloaders == nil then
+		combine.cp.assignedUnloaders ={}
+	end
+	combine.cp.assignedUnloaders[vehicle] = true
+end
+
+function courseplay:unassignCombineToTractor(vehicle, combine)
+	vehicle.cp.assignedCombines[combine] = nil
+	combine.cp.assignedUnloaders[vehicle]= nil
 end
 ----------------------------------------------------------------------------------------------------
 
